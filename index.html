@@ -17,6 +17,7 @@
       display: flex;
       flex-direction: column;
       color: #5c3a21; /* Dark cinnamon text */
+      -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
     }
     header { 
       background-color: #d2691e; /* Cinnamon header */
@@ -40,6 +41,7 @@
       padding: 1rem;
       width: 100%;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
     }
     .section { 
       margin-bottom: 1rem; 
@@ -352,10 +354,6 @@ document.getElementById("tone").addEventListener("change", e => {
 window.addEventListener("DOMContentLoaded", () => {
   populateOptions();
   generateScenario();
-  
-  document.addEventListener('touchmove', function(e) {
-    if(e.scale !== 1) { e.preventDefault(); }
-  }, { passive: false });
 });
 </script>
 </body>
