@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>📧 Email Builder for EFL Students</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body { 
+      font-family: Arial, sans-serif; 
+      background: #f5f0e6; /* Soft beige background */
+      margin: 0; 
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #5c3a21; /* Dark cinnamon text */
+    }
+    header { 
+      background-color: #d2691e; /* Cinnamon header */
+      color: #fff8f0; /* Off-white text */
+      text-align: center; 
+      padding: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .credit-line {
+      font-style: italic;
+      color: #fff8f0;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    main { 
+      flex: 1;
+      max-width: 800px; 
+      margin: 0 auto; 
+      padding: 1rem;
+      width: 100%;
+      overflow-y: auto;
+    }
+    .section { 
+      margin-bottom: 1rem; 
+      background: #fff8f0; /* Off-white sections */
+      padding: 1rem; 
+      border-radius: 10px; 
+      box-shadow: 0 2px 6px rgba(92, 58, 33, 0.1); /* Cinnamon shadow */
+      border: 1px solid #e0d5c0; /* Light beige border */
+    }
+    select, input[type="text"], textarea, button {
+      width: 100%; 
+      padding: 0.75rem; 
+      margin-top: 0.5rem; 
+      border: 1px solid #c0a080; /* Light cinnamon border */
+      border-radius: 5px; 
+      font-size: 1rem;
+      background-color: #fffdfa; /* Slightly off-white */
+      color: #5c3a21; /* Cinnamon text */
+    }
+    button { 
+      background-color: #b35900; /* Dark cinnamon */
+      color: #fff8f0; 
+      border: none; 
+      cursor: pointer;
+      padding: 0.75rem;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+    button:hover { 
+      background-color: #8b4513; /* Darker cinnamon on hover */
+    }
+    #preview { 
+      white-space: pre-wrap; 
+      border: 1px solid #c0a080; 
+      border-radius: 5px; 
+      padding: 1rem; 
+      background: #fffdfa;
+      overflow-wrap: break-word;
+    }
+    .row { 
+      display: flex; 
+      gap: 0.75rem; 
+      align-items: center; 
+      flex-wrap: wrap; 
+    }
+    .scenario { 
+      font-style: italic; 
+      flex: 1;
+      font-size: 0.9rem;
+      color: #7a5c3c; /* Medium cinnamon */
+    }
+    .fill-in { 
+      color: #8b7355; 
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+    .hidden { display: none; }
+    footer {
+      text-align: center;
+      padding: 0.75rem;
+      background: #d2691e; /* Cinnamon footer */
+      color: #fff8f0;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    @media (max-width: 480px) {
+      .row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      button {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+      }
+      .section {
+        padding: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📝 Email Builder for EFL Students</h1>
+    <div class="credit-line">Devised by Panagiotis Domvros, English and Drama Teacher</div>
+  </header>
+  <main>
+    <div class="section">
+     <label for="tone">🎚️ Choose tone:</label>
+      <select id="tone">
+        <option value="formal">Formal</option>
+        <option value="informal">Informal</option>
+      </select>
+      <div class="row">
+        <div class="scenario" id="scenario"></div>
+        <button onclick="generateScenario()">🎲 New Writing Challenge</button>
+      </div>
+    </div>
+
+    <div class="section">
+     <label for="recipient">👤 Recipient name (optional):</label>
+      <input type="text" id="recipient" placeholder="e.g. Mr Lee or Alex" />
+    </div>
+
+    <div class="section">
+     <label for="greeting">✍️ Greeting:</label>
+      <select id="greeting"></select>
+    </div>
+
+    <div class="section">
+      <label for="opening">📖 Opening sentence:</label>
+      <select id="opening" onchange="handleOpeningChange()"></select>
+      <input type="text" id="customOpening" placeholder="Write your own..." class="hidden" />
+      <div id="openingFill" class="hidden" style="margin-top:0.5rem;">
+        <input type="text" id="openingFillText" placeholder="Complete your sentence here..." class="fill-in" />
+      </div>
+    </div>
+
+    <div class="section">
+     <label for="body">📝 Main message:</label>
+      <textarea id="body" rows="4"></textarea>
+      <button onclick="suggestBody()">💡 Suggest Body</button>
+    </div>
+
+    <div class="section">
+      <label for="closing">🔚 Closing sentence:</label>
+      <select id="closing"></select>
+    </div>
+
+    <div class="section">
+      <label for="signoff">✏️ Sign-off:</label>
+      <select id="signoff"></select>
+      <input type="text" id="name" placeholder="Your name" />
+    </div>
+
+    <div class="section">
+      <button onclick="generateEmail()">📧 Build Email</button>
+      <button onclick="copyEmail()">📋 Copy</button>
+    </div>
+
+    <div class="section">
+      <h3>📄 Email Preview</h3>
+      <div id="preview"></div>
+    </div>
+  </main>
+  
+  <footer>
+   ✨ Devised by Panagiotis Domvros, English and Drama Teacher, All Rights Reserved ✨
+  </footer>
+
+<script>
+const greetings = {
+  formal: ["Dear Sir or Madam", "Dear Mr.", "Dear Ms.", "To whom it may concern", "Dear Hiring Manager"],
+  informal: ["Hi", "Hello", "Hey", "Hey there", "What's up"]
+};
+
+const openings = {
+  formal: [
+    "I am writing to inform you about...",
+    "I would like to request...",
+    "I am contacting you regarding...",
+    "I am reaching out to ask...",
+    "I am writing in response to...",
+    "custom"
+  ],
+  informal: [
+    "Just wanted to let you know...",
+    "Quick question about...",
+    "I was thinking about...",
+    "Hope you're doing well, just a quick message...",
+    "Hey! Got something to ask you...",
+    "custom"
+  ]
+};
+
+const closings = {
+  formal: [
+    "Please let me know if you have any questions.",
+    "I look forward to hearing from you.",
+    "Thank you for your time and consideration.",
+    "Please do not hesitate to contact me.",
+    "I await your response."
+  ],
+  informal: [
+    "Let me know what you think!",
+    "Talk soon!",
+    "Catch you later!",
+    "Message me back when you can.",
+    "Hope to hear from you soon!"
+  ]
+};
+
+const signoffs = {
+  formal: ["Kind regards", "Sincerely", "Best regards", "Yours faithfully", "Respectfully"],
+  informal: ["Take care", "Cheers", "Thanks", "See ya", "Bye for now"]
+};
+
+const scenarios = [
+  "You're writing to ask your teacher for an extension.",
+  "You're inviting a friend to your birthday party.",
+  "You're applying for a summer internship.",
+  "You're writing to cancel a meeting.",
+  "You're thanking your teacher for extra help.",
+  "You're emailing your boss about a scheduling conflict.",
+  "You're writing to your pen pal about your summer plans.",
+  "You're requesting information about a school event.",
+  "You're complaining to a company about a faulty product.",
+  "You're apologizing to a friend for missing their party.",
+  "You're writing to ask a classmate for notes.",
+  "You're suggesting a time to meet your tutor.",
+  "You're writing to confirm your participation in a workshop.",
+  "You're writing a thank-you note for a birthday gift.",
+  "You're asking a neighbor to look after your pet.",
+  "You're requesting help from your IT department.",
+  "You're inviting a guest speaker to your school.",
+  "You're checking in on a friend who's been unwell.",
+  "You're informing your teacher about a missed deadline.",
+  "You're replying to someone asking for directions."
+];
+
+let currentTone = "formal";
+
+function populateOptions() {
+  const tone = currentTone;
+  document.getElementById("greeting").innerHTML =
+    greetings[tone].map(opt => `<option value="${opt}">${opt}</option>`).join("");
+
+  const openingOptions = openings[tone].map(opt =>
+    opt === "custom" ? `<option value="custom">Write your own...</option>` : `<option value="${opt}">${opt}</option>`
+  );
+  document.getElementById("opening").innerHTML = openingOptions.join("");
+
+  document.getElementById("closing").innerHTML =
+    closings[tone].map(opt => `<option value="${opt}">${opt}</option>`).join("");
+
+  document.getElementById("signoff").innerHTML =
+    signoffs[tone].map(opt => `<option value="${opt}">${opt}</option>`).join("");
+
+  handleOpeningChange();
+}
+
+function handleOpeningChange() {
+  const openingSel = document.getElementById("opening");
+  const custom = document.getElementById("customOpening");
+  const fillIn = document.getElementById("openingFill");
+  
+  custom.classList.toggle("hidden", openingSel.value !== "custom");
+  fillIn.classList.toggle("hidden", openingSel.value === "custom" || !openingSel.value.includes("..."));
+}
+
+function suggestBody() {
+  const suggestion = currentTone === "formal"
+    ? "I would be grateful if you could provide more details."
+    : "Can you let me know more when you get a chance?";
+  document.getElementById("body").value = suggestion;
+}
+
+function generateScenario() {
+  const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+  document.getElementById("scenario").textContent = scenario;
+}
+
+function generateEmail() {
+  const greeting = document.getElementById("greeting").value;
+  const recipient = document.getElementById("recipient").value;
+  const openingSel = document.getElementById("opening").value;
+  const customOpening = document.getElementById("customOpening").value;
+  const openingFill = document.getElementById("openingFillText").value;
+  
+  let opening;
+  if (openingSel === "custom") {
+    opening = customOpening;
+  } else {
+    opening = openingSel;
+    if (openingFill && openingSel.includes("...")) {
+      opening = opening.replace("...", openingFill);
+    }
+  }
+  
+  const body = document.getElementById("body").value;
+  const closing = document.getElementById("closing").value;
+  const signoff = document.getElementById("signoff").value;
+  const name = document.getElementById("name").value;
+
+  const result = `${greeting} ${recipient},\n\n${opening}\n\n${body}\n\n${closing}\n\n${signoff},\n${name}`;
+  document.getElementById("preview").textContent = result;
+  
+  document.getElementById("preview").scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function copyEmail() {
+  const text = document.getElementById("preview").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Email copied!");
+  }).catch(err => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    alert("Email copied!");
+  });
+}
+
+document.getElementById("tone").addEventListener("change", e => {
+  currentTone = e.target.value;
+  populateOptions();
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  populateOptions();
+  generateScenario();
+  
+  document.addEventListener('touchmove', function(e) {
+    if(e.scale !== 1) { e.preventDefault(); }
+  }, { passive: false });
+});
+</script>
+</body>
+</html>
